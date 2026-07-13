@@ -1,0 +1,15 @@
+{
+  "name": "idlToCodama",
+  "version": "1.0.0",
+  "description": "Convert Anchor IDL to codama program client.",
+  "license": "MIT",
+  "dependencies": {
+    "@codama/nodes-from-anchor": "1.3.9",
+    "@codama/renderers-js": "2.0.3",
+    "codama": "1.4.0",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
+  }
+}
