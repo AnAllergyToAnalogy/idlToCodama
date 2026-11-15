@@ -16,12 +16,12 @@ yarn
 ts-node convert INPUT_DIR OUTPUT_DIR
 ```
 
-Where `INPUT_DIR` is the directory containing the IDL .json, and `OUTPUT_DIR` is the location for the desired program client. 
+Where `INPUT_DIR` is the directory containing the IDL .json files, and `OUTPUT_DIR` is the location for the desired program clients. 
 
-It will search within `INPUT_DIR` for a single .json file, and create the `OUTPUT_DIR` as the output.
+It will search within `INPUT_DIR` for a multiple .json files, and create the `OUTPUT_DIR` as the output.
 
 ie
 
 ```
-ts-node convert /input /output/MyProgramClient
+ts-node convert /input /output/
 ```

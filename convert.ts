@@ -8,6 +8,7 @@ import {promises as fs} from "fs";
 import {createFromRoot} from "codama";
 import {rootNodeFromAnchor} from "@codama/nodes-from-anchor";
 import {renderVisitor} from "@codama/renderers-js";
+import { snakeToPascal } from "./case";
 
 let log = console.log;
 
@@ -35,7 +36,7 @@ const source = String(process.argv[2]);
 const destination = process.argv[3];
 
 
-const loadAnchorIDL = async () => {
+const loadAnchorIDLs = async () => {
     const basePath = path.join(__dirname,"/",source);
     const dirPath = path.join(basePath);
 
@@ -52,8 +53,18 @@ const loadAnchorIDL = async () => {
             throw new Error(`Multiple JSON files found in ${dirPath}. Please specify which one to use.`);
         }
 
-        const filePath = path.join(dirPath, jsonFiles[0]);
-        return JSON.parse(await fs.readFile(filePath, "utf-8"));
+        const output: any = {};
+        for(let i = 0; i < jsonFiles.length; i++){
+            const filename = jsonFiles[i];
+            const components = filename.split(".");
+            components.pop();
+            const withoutExtension = components.join(".");
+            
+            const filePath = path.join(dirPath, filename);
+
+            output[withoutExtension] = JSON.parse(await fs.readFile(filePath, "utf-8"));;
+        }
+        return output;
     } catch (error) {
         if (error instanceof Error && "code" in error && error.code === "ENOENT") {
             throw new Error(`Failed to load IDL: ${dirPath} does not exist`);
@@ -63,24 +74,43 @@ const loadAnchorIDL = async () => {
 };
 
 
+
+
 async function convertIdlToCodamas(){
-    log("Load IDL...")
-    const idl = await loadAnchorIDL();
+    log()
+    log("Load IDLs...")
+    const idls = await loadAnchorIDLs();
+    log()
 
-    log("Get root node...")
-    const rootNode = rootNodeFromAnchor(idl);
+    log("Process them...")
 
-    log("Generate Codama client...")
-    const codama = createFromRoot(rootNode);
+    for(let filename in idls){
+        log("  ",filename,"...");
+        const FileName = snakeToPascal(filename);
+        const idl =  idls[filename];
 
-    log("Render and write...")
-    const generatedPath = path.join( destination);
-    const visitor = renderVisitor(generatedPath);
+        const thisDestination = destination+"/"+FileName;
 
-    // @ts-ignore
-    await codama.accept(visitor);
+        log("     Get root node...")
+        const rootNode = rootNodeFromAnchor(idl);
 
-    log("Done.")
+        log("     Generate Codama client...")
+        const codama = createFromRoot(rootNode);
+
+        log("     Render and write...")
+        const generatedPath = path.join( thisDestination);
+        const visitor = renderVisitor(generatedPath);
+
+        // @ts-ignore
+        await codama.accept(visitor);
+
+        log("    done.")
+        log();
+    }
+
+
+    log("Done all.")
+
 }
 
 convertIdlToCodamas();
