@@ -49,10 +49,6 @@ const loadAnchorIDLs = async () => {
             throw new Error(`No JSON files found in ${dirPath}`);
         }
 
-        if (jsonFiles.length > 1) {
-            throw new Error(`Multiple JSON files found in ${dirPath}. Please specify which one to use.`);
-        }
-
         const output: any = {};
         for(let i = 0; i < jsonFiles.length; i++){
             const filename = jsonFiles[i];
